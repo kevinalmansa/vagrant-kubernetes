@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+# Bash Helper Functions
+#
+
+### Personal Functions
+
+base64-dec(){
+    echo "$1" | base64 --decode ; echo
+}
+
+# Search directory for a regexp string
+search-dir(){
+	grep -rn $1 -e $2
+}
+
+# remove emacs temporary files from directory
+cleandir(){
+	rm -rfv $1/.*~
+	rm -rfv $1/*~
+}
+
+# helper function for cleandir
+clean(){
+	if [ $1 ];
+	then
+	    if [ -d $1 ];
+	    then
+		cleandir $1
+	    else
+		echo "$1 not a directory"
+	    fi
+	else
+	    cleandir `pwd`
+	fi
+}
+
+### https://github.com/jessfraz/dotfiles
+
+dcleanup(){
+	local containers
+	mapfile -t containers < <(docker ps -aq 2>/dev/null)
+	docker rm "${containers[@]}" 2>/dev/null
+	local volumes
+	mapfile -t volumes < <(docker ps --filter status=exited -q 2>/dev/null)
+	docker rm -v "${volumes[@]}" 2>/dev/null
+	local images
+	mapfile -t images < <(docker images --filter dangling=true -q 2>/dev/null)
+	docker rmi "${images[@]}" 2>/dev/null
+}
+
+del_stopped(){
+	local name=$1
+	local state
+	state=$(docker inspect --format "{{.State.Running}}" "$name" 2>/dev/null)
+
+	if [[ "$state" == "false" ]]; then
+		docker rm "$name"
+	fi
+}
+
+# Calculator
+calc() {
+	local result=""
+	result="$(printf "scale=10;%s\\n" "$*" | bc --mathlib | tr -d '\\\n')"
+	#						└─ default (when `--mathlib` is used) is 20
+
+	if [[ "$result" == *.* ]]; then
+		# improve the output for decimal numbers
+		# add "0" for cases like ".5"
+		# add "0" for cases like "-.5"
+		# remove trailing zeros
+		printf "%s" "$result" |
+			sed -e 's/^\./0./'  \
+			-e 's/^-\./-0./' \
+			-e 's/0*$//;s/\.$//'
+	else
+		printf "%s" "$result"
+	fi
+	printf "\\n"
+}
+
+# Determine size of a file or total size of a directory
+fs() {
+	if du -b /dev/null > /dev/null 2>&1; then
+		local arg=-sbh
+	else
+		local arg=-sh
+	fi
+	# shellcheck disable=SC2199
+	if [[ -n "$@" ]]; then
+		du $arg -- "$@"
+	else
+		du $arg -- .[^.]* *
+	fi
+}
+
+# Syntax-highlight JSON strings or files
+# Usage: `json '{"foo":42}'` or `echo '{"foo":42}' | json`
+json() {
+	if [ -t 0 ]; then # argument
+		python -mjson.tool <<< "$*" | pygmentize -l javascript
+	else # pipe
+		python -mjson.tool | pygmentize -l javascript
+	fi
+}
