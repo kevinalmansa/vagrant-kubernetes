@@ -1,0 +1,23 @@
+---
+
+- name: check go version
+  command: go version
+  register: result
+  changed_when: no
+  ignore_errors: true
+  become: yes
+  become_user: vagrant
+
+- set_fact:
+    go_path: "{{ lookup('env', 'GOPATH') | default(ansible_env.HOME+'/go', true) }}"
+  when: not result|failed
+  become: yes
+  become_user: vagrant
+
+- name: Get Kind
+  shell: go get sigs.k8s.io/kind@v0.4.0
+  environment:
+    GOPATH: "{{ go_path }}"
+    GO111MODULE: "on"
+  become: yes
+  become_user: vagrant

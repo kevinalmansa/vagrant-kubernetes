@@ -1,2 +1,3 @@
 # vagrant state directory
 .vagrant/
+*.log

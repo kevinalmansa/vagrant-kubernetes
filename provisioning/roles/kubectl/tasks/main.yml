@@ -1,0 +1,11 @@
+---
+
+- name: download Kubectl
+  shell: curl -o /usr/local/bin/kubectl -s -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+- name: Change file ownership and permissions of kubectl
+  file:
+    path: /usr/local/bin/kubectl
+    owner: root
+    group: root
+    mode: '0755'

@@ -11,3 +11,5 @@
     - golang
     - docker
     - dotfiles
+    - kind
+    - kubectl
