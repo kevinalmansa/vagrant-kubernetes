@@ -8,11 +8,23 @@
   become: yes
   become_user: vagrant
 
+- name:
+  shell: >
+    getent passwd vagrant | cut -d: -f6
+  changed_when: false
+  register: user_home
+
+- debug:
+    msg: Go Fact {{ user_home.stdout }}
+
 - set_fact:
-    go_path: "{{ lookup('env', 'GOPATH') | default(ansible_env.HOME+'/go', true) }}"
-  when: not result|failed
+    go_path: "{{ lookup('env', 'GOPATH') | default(user_home.stdout+'/go', true) }}"
+  when: not result is failed
   become: yes
   become_user: vagrant
+
+- debug:
+    msg: Go Fact {{ go_path }}
 
 - name: Get Kind
   shell: go get sigs.k8s.io/kind@v0.4.0
