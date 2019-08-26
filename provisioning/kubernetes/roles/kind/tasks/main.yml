@@ -1,0 +1,52 @@
+---
+
+- name: check go version
+  command: go version
+  register: result
+  changed_when: no
+  ignore_errors: true
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name:
+  shell: >
+    getent passwd {{ install_user }} | cut -d: -f6
+  changed_when: false
+  register: user_home
+
+- debug:
+    msg: Go Fact {{ user_home.stdout }}
+
+- set_fact:
+    go_path: "{{ lookup('env', 'GOPATH') | default(user_home.stdout+'/go', true) }}"
+  when: not result is failed
+  become: yes
+  become_user: "{{ install_user }}"
+
+- debug:
+    msg: Go Fact {{ go_path }}
+
+- name: Get Kind
+  shell: go get sigs.k8s.io/kind@v0.4.0
+  environment:
+    GOPATH: "{{ go_path }}"
+    GO111MODULE: "on"
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Copy config file over
+  copy:
+    src: kind-config.yaml
+    dest: /tmp/kind-config.yaml
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0644'
+
+- name: Run Kind
+  shell: >
+    {{ go_path }}/bin/kind create cluster --config /tmp/kind-config.yaml
+  become: yes
+  become_user: "{{ install_user }}"
+
+- debug:
+    msg: run export KUBECONFIG="$(kind get kubeconfig-path)" before running kubectl

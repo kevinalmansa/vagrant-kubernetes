@@ -1,0 +1,25 @@
+---
+
+- name: Copying bashrc file
+  copy:
+    src: bashrc
+    dest: /home/{{ install_user }}/.bashrc
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: 0640
+
+- name: Copying functions file
+  copy:
+    src: functions
+    dest: /home/{{ install_user }}/.functions
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: 0640
+
+- name: Copying profile file
+  copy:
+    src: profile
+    dest: /home/{{ install_user }}/.profile
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: 0640

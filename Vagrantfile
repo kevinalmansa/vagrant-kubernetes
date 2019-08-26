@@ -23,8 +23,15 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--pae", "on"]
   end
 
-  # Enable provisioning with Ansible.
+  # Enable provisioning with Ansible - install base requirements
   config.vm.provision "ansible_local" do |ansible|
-    ansible.playbook = "provisioning/playbook.yml"
+    ansible.playbook = "provisioning/base/playbook.yml"
+  end
+
+  config.vm.provision :reload
+
+  # Enable provisioning with Ansible - configure Kubernetes
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "provisioning/kubernetes/playbook.yml"
   end
 end
