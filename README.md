@@ -73,3 +73,7 @@ To initialize helm:
 ```sh
 helm init --service-account tiller --history-max 200
 ```
+
+## Storage
+
+https://github.com/rancher/local-path-provisioner
