@@ -59,3 +59,17 @@ To delete the VM:
 ```sh
 $ vagrant destroy
 ```
+
+## Logging
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes
+
+## Helm
+
+Tiller is installed as cluster-admin role to allow it to install and remove services.
+
+To initialize helm:
+
+```sh
+helm init --service-account tiller --history-max 200
+```
