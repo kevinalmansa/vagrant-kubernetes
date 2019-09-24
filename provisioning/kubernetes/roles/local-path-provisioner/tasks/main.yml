@@ -1,0 +1,26 @@
+---
+
+- name: Ensures project_config_dir exists
+  file: path="{{ project_config_dir }}" state=directory
+
+- name: Copy config file over
+  copy:
+    src: local-path-provisioner.yml
+    dest: "{{ project_config_dir }}/local-path-provisioner.yml"
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0644'
+
+# - name: Apply local-path-provisioner
+#   k8s:
+#     state: present
+#     src: "{{ project_config_dir }}/local-path-provisioner.yml"
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+- name: Apply local-path-provisioner
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl apply -f {{ project_config_dir }}/local-path-provisioner.yml
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"

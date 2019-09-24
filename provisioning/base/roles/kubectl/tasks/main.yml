@@ -9,3 +9,16 @@
     owner: root
     group: root
     mode: '0755'
+
+# - name: install pip
+#   apt:
+#     name: "{{ item }}"
+#     state: present
+#   loop:
+#     - python-pip
+
+# - name: Change file ownership and permissions of kubectl
+#   pip:
+#     name:
+#       - openshift
+#       - pyyaml

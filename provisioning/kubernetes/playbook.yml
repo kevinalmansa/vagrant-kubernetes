@@ -9,3 +9,6 @@
   
   roles:
     - kind
+    - nginx-ingress
+    - local-path-provisioner
+    

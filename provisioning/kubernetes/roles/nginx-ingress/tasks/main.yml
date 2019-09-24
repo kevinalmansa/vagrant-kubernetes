@@ -1,0 +1,48 @@
+---
+
+- name: Ensures project_config_dir exists
+  file: path="{{ project_config_dir }}" state=directory
+
+- name: Copy config file over
+  copy:
+    src: nginx-ingress_mandatory.yml
+    dest: "{{ project_config_dir }}/nginx-ingress_mandatory.yml"
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0644'
+
+- name: Copy config file over
+  copy:
+    src: nginx-ingress_service.yml
+    dest: "{{ project_config_dir }}/nginx-ingress_service.yml"
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0644'
+
+# - name: Apply nginx-ingress_mandatory
+#   k8s:
+#     state: present
+#     src: "{{ project_config_dir }}/nginx-ingress_mandatory.yml"
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+# - name: Apply nginx-ingress_service
+#   k8s:
+#     state: present
+#     src: "{{ project_config_dir }}/nginx-ingress_service.yml"
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+- name: Apply nginx-ingress_mandatory
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl create -f {{ project_config_dir }}/nginx-ingress_mandatory.yml
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Apply nginx-ingress_service
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl create -f {{ project_config_dir }}/nginx-ingress_service.yml
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
