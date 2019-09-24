@@ -24,3 +24,10 @@
   changed_when: false
   become: yes
   become_user: "{{ install_user }}"
+
+- name: unset storageclass standard as default
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl patch storageclass standard -p '{"metadata": {"annotations":{"storageclass.beta.kubernetes.io/is-default-class":"false"}}}'
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
