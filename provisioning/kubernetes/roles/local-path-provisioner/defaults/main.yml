@@ -2,3 +2,6 @@
 
 install_user: vagrant
 project_config_dir: /tmp/conf
+
+namespace: local-path-storage
+helm_tiller_namespace: tiller

@@ -1,0 +1,8 @@
+---
+
+install_user: vagrant
+project_config_dir: /tmp/conf
+
+service_account_name: tiller
+namespace: tiller
+helm_history_max: 200

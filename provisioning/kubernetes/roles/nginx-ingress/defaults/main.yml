@@ -2,3 +2,6 @@
 
 install_user: vagrant
 project_config_dir: /tmp/conf
+
+namespace: ingress
+helm_tiller_namespace: tiller

@@ -9,6 +9,7 @@
   
   roles:
     - kind
+    - helm
     - nginx-ingress
     - local-path-provisioner
     
