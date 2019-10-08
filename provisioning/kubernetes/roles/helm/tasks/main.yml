@@ -54,7 +54,7 @@
 
 - name: Install Tiller
   shell: >
-    helm init --history-max {{ helm_history_max }} --tiller-namespace {{ namespace }} --service-account {{ service_account_name }}
+    KUBECONFIG=$(kind get kubeconfig-path) helm init --history-max {{ helm_history_max }} --tiller-namespace {{ namespace }} --service-account {{ service_account_name }}
   changed_when: false
   become: yes
   become_user: "{{ install_user }}"

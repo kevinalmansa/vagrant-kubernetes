@@ -1,5 +1,8 @@
 kind: Cluster
 apiVersion: kind.sigs.k8s.io/v1alpha3
+networking:
+  apiServerPort: 19090
+  apiServerAddress: {{ apiserver_ip }}
 # kubeadmConfigPatches:
 # - |
 #   apiVersion: kubeadm.k8s.io/v1beta2

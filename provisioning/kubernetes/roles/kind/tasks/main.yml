@@ -38,8 +38,8 @@
   file: path="{{ project_config_dir }}" state=directory
 
 - name: Copy config file over
-  copy:
-    src: kind-config.yaml
+  template:
+    src: kind-config.j2
     dest: "{{ project_config_dir }}/kind-config.yaml"
     owner: "{{ install_user }}"
     group: "{{ install_user }}"
