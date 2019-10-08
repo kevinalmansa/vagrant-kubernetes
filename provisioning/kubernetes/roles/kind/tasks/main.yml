@@ -8,7 +8,7 @@
   become: yes
   become_user: "{{ install_user }}"
 
-- name:
+- name: Register users home directory path
   shell: >
     getent passwd {{ install_user }} | cut -d: -f6
   changed_when: false
@@ -34,17 +34,20 @@
   become: yes
   become_user: "{{ install_user }}"
 
+- name: Ensures conf dir exists
+  file: path="{{ project_config_dir }}" state=directory
+
 - name: Copy config file over
-  copy:
-    src: kind-config.yaml
-    dest: /tmp/kind-config.yaml
+  template:
+    src: kind-config.j2
+    dest: "{{ project_config_dir }}/kind-config.yaml"
     owner: "{{ install_user }}"
     group: "{{ install_user }}"
     mode: '0644'
 
 - name: Run Kind
   shell: >
-    {{ go_path }}/bin/kind create cluster --config /tmp/kind-config.yaml
+    {{ go_path }}/bin/kind create cluster --config {{ project_config_dir }}/kind-config.yaml
   become: yes
   become_user: "{{ install_user }}"
 

@@ -1,0 +1,67 @@
+---
+
+- name: Ensures project_config_dir exists
+  file:
+    path: "{{ project_config_dir }}"
+    state: directory
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0755'
+
+- name: Copy over kubernetes resource file
+  template:
+    src: tiller-sa.j2
+    dest: "{{ project_config_dir }}/tiller-sa.yml"
+    owner: "{{ install_user }}"
+    mode: '0644'
+
+- name: Download helm install file
+  get_url:
+    url: https://git.io/get_helm.sh
+    dest: "{{ project_config_dir }}/get_helm.sh"
+    mode: '0700'
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Execute the command to install helm
+  shell: >
+    {{ project_config_dir }}/get_helm.sh
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+# TODO: swap this for a kubectl apply -f 
+- name: Create Tiller namespace
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl create ns {{ namespace }}
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Create Tiller Service Account
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl -n {{ namespace }} create serviceaccount {{ service_account_name }}
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Bind Tiller Service Account to Cluster Admin
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl create clusterrolebinding {{ service_account_name }} --clusterrole cluster-admin --serviceaccount={{ namespace }}:{{ service_account_name }}
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Install Tiller
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) helm init --history-max {{ helm_history_max }} --tiller-namespace {{ namespace }} --service-account {{ service_account_name }}
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Wait for control-plane pods become ready
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl wait --namespace {{ namespace }} --for=condition=Ready pods --all --timeout=600s
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"

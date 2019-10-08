@@ -50,8 +50,13 @@ That's it. You can now SSH into the machine and run kubectl:
 
 ```sh
 $ vagrant ssh
-$ export KUBECONFIG="$(kind get kubeconfig-path)"
 $ kubectl cluster-info
+```
+
+To view the kube config:
+
+```sh
+$ cat $(kind get kubeconfig-path)
 ```
 
 To delete the VM:
@@ -59,3 +64,29 @@ To delete the VM:
 ```sh
 $ vagrant destroy
 ```
+
+## Ingress
+
+NGINX Ingress Controller is installed by default, using NodePort on ports 80 & 443.
+This means you will be able to expose services by creating an Ingress and accessing
+the services via the IP Address of the VM on either of these ports.
+
+TODO: Example
+
+## Logging
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes
+
+## Helm
+
+Tiller is installed as cluster-admin role to allow it to install and remove services.
+
+To initialize helm:
+
+```sh
+helm init --service-account tiller --history-max 200
+```
+
+## Storage
+
+https://github.com/rancher/local-path-provisioner

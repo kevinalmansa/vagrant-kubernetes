@@ -1,5 +1,8 @@
 kind: Cluster
 apiVersion: kind.sigs.k8s.io/v1alpha3
+networking:
+  apiServerPort: 19090
+  apiServerAddress: {{ apiserver_ip }}
 # kubeadmConfigPatches:
 # - |
 #   apiVersion: kubeadm.k8s.io/v1beta2
@@ -28,3 +31,12 @@ nodes:
 - role: control-plane
 - role: worker
 - role: worker
+  extraPortMappings:
+  - containerPort: 30080
+    hostPort: 80
+    listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+    protocol: tcp # Optional, defaults to tcp
+  - containerPort: 30443
+    hostPort: 443
+    listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+    protocol: tcp # Optional, defaults to tcp

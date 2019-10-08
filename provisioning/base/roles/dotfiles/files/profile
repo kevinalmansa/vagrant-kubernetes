@@ -27,6 +27,8 @@ if [ -d "$HOME/.local/bin" ] ; then
 fi
 
 # Golang installation - Ubuntu
-export GOROOT=/usr/lib/go-1.12
 export GOPATH=$HOME/go
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export PATH=$PATH:$GOPATH/bin
+
+# Kubectl
+export KUBECONFIG="$(kind get kubeconfig-path)"

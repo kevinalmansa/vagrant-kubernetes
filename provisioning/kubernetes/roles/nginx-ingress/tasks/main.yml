@@ -1,0 +1,76 @@
+---
+
+- name: Ensures project_config_dir exists
+  file:
+    path: "{{ project_config_dir }}"
+    state: directory
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0755'
+
+- name: Copy config file over
+  copy:
+    src: nginx-ingress_mandatory.yml
+    dest: "{{ project_config_dir }}/nginx-ingress_mandatory.yml"
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0644'
+
+- name: Copy config file over
+  copy:
+    src: nginx-ingress_service.yml
+    dest: "{{ project_config_dir }}/nginx-ingress_service.yml"
+    owner: "{{ install_user }}"
+    group: "{{ install_user }}"
+    mode: '0644'
+
+# - name: Apply nginx-ingress_mandatory
+#   k8s:
+#     state: present
+#     src: "{{ project_config_dir }}/nginx-ingress_mandatory.yml"
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+# - name: Apply nginx-ingress_service
+#   k8s:
+#     state: present
+#     src: "{{ project_config_dir }}/nginx-ingress_service.yml"
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+
+# - name: Apply nginx-ingress_mandatory
+#   shell: >
+#     KUBECONFIG=$(kind get kubeconfig-path) kubectl create -f {{ project_config_dir }}/nginx-ingress_mandatory.yml
+#   changed_when: false
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+# - name: Apply nginx-ingress_service
+#   shell: >
+#     KUBECONFIG=$(kind get kubeconfig-path) kubectl create -f {{ project_config_dir }}/nginx-ingress_service.yml
+#   changed_when: false
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+# - name: Apply nginx-ingress_mandatory
+#   shell: >
+#     KUBECONFIG=$(kind get kubeconfig-path) kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+#   changed_when: false
+#   become: yes
+#   become_user: "{{ install_user }}"
+
+# TODO: --namespace to specify namespace to deploy this to
+- name: Apply nginx-ingress_mandatory
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) helm install stable/nginx-ingress --name nginx-ingress --set defaultBackend.service.type=NodePort --set controller.service.nodePorts.http=30080 --set controller.service.nodePorts.https=30443 --namespace {{ namespace }} --tiller-namespace {{ helm_tiller_namespace }}
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"
+
+- name: Wait for control-plane pods become ready
+  shell: >
+    KUBECONFIG=$(kind get kubeconfig-path) kubectl wait --namespace {{ namespace }} --for=condition=Ready pods --all --timeout=600s
+  changed_when: false
+  become: yes
+  become_user: "{{ install_user }}"

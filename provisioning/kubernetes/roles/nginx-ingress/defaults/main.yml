@@ -2,4 +2,6 @@
 
 install_user: vagrant
 project_config_dir: /tmp/conf
-apiserver_ip: 192.168.56.20
+
+namespace: ingress
+helm_tiller_namespace: tiller

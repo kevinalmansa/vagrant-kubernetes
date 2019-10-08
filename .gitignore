@@ -1,3 +1,7 @@
 # vagrant state directory
 .vagrant/
 *.log
+
+# Golang
+go.mod
+go.sum
